@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import './App.css'
 import {AuthModuleSingleton, LOGIN} from './auth.js'
-// import {parse} from "jsonlines"
-// import {parse} from "ndjson"
+import {process} from "./data.js"
 import ndjsonStream from 'can-ndjson-stream';
 
 const AUTH_URL = 'https://joshmarinacci-tinytracker.glitch.me/github'
@@ -38,45 +37,6 @@ const StatsTable = ({stats,field})=>{
 
  */
 
-function count(hash, url) {
-  if(!hash[url]) hash[url] = 0
-  hash[url] += 1
-}
-
-function o2a(byUrl) {
-  return Object.keys(byUrl).map(key=>{
-    return {
-      key:key,
-      count:byUrl[key]
-    }
-  })
-}
-
-function process(arr) {
-  const stats = {
-    alltime: {
-      byUrl:[],
-      byUserAgent:[],
-    }
-  }
-  const byUrl = {}
-  const byUserAgent = {}
-  const byReferrer = {}
-  arr.forEach(event => {
-    count(byUrl,event.url)
-    count(byUserAgent,event.userAgent)
-    count(byReferrer,event.referrer)
-  })
-  stats.alltime.byUrl = o2a(byUrl)
-  stats.alltime.byUserAgent = o2a(byUserAgent)
-  stats.alltime.byReferrer = o2a(byReferrer)
-  const countSort = (a,b) => b.count-a.count
-  stats.alltime.byUrl.sort(countSort)
-  stats.alltime.byUserAgent.sort(countSort)
-  stats.alltime.byReferrer.sort(countSort)
-  console.log('stats is',stats)
-  return stats
-}
 
 const HBox = ({children})=>{
   return <div>{children}</div>
@@ -107,7 +67,6 @@ function App() {
             arr.push(res.value)
             count++
             if(count%10 === 0) setLoadCount(count)
-            console.log("adding")
             return reader.read().then(read)
           }
           return reader.read().then(read)
