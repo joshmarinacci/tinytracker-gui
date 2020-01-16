@@ -29,6 +29,8 @@ const StatsTable = ({stats,field})=>{
   </table>
 }
 
+console.log("loading")
+
 /*
 	• External links clicked total
 	• External links clicked, top 10
