@@ -1,16 +1,71 @@
 import React, {useEffect, useState} from 'react'
 import './App.css'
 import {AuthModuleSingleton, LOGIN} from './auth.js'
+// import {parse} from "jsonlines"
+// import {parse} from "ndjson"
+import ndjsonStream from 'can-ndjson-stream';
 
-const AUTH_URL = 'http://vr.josh.earth:3965/github'
-const DATA_URL = 'http://vr.josh.earth:3965/data.json'
+// const AUTH_URL = 'https://joshmarinacci-tinytracker.glitch.me/github'
+// const DATA_URL = 'https://joshmarinacci-tinytracker.glitch.me/data.json'
+// const AUTH_URL = 'https://joshmarinacci-tinytracker.glitch.me/github'
+const AUTH_URL = 'http://localhost:3965/github'
+const DATA_URL = 'http://localhost:3965/data.jsonline'
 
 const auth = new AuthModuleSingleton()
+
+/*
+	• External links clicked total
+	• External links clicked, top 10
+	• Panels clicked total
+	• Page loaded total
+
+ */
+
+function count(hash, url) {
+  if(!hash[url]) hash[url] = 0
+  hash[url] += 1
+}
+
+function o2a(byUrl) {
+  return Object.keys(byUrl).map(key=>{
+    return {
+      key:key,
+      count:byUrl[key]
+    }
+  })
+}
+
+function process(arr) {
+  const stats = {
+    alltime: {
+      byUrl:[],
+      byUserAgent:[],
+    }
+  }
+  const byUrl = {}
+  const byUserAgent = {}
+  const byReferrer = {}
+  arr.forEach(event => {
+    console.log('event',event)
+    count(byUrl,event.url)
+    count(byUserAgent,event.userAgent)
+    count(byReferrer,event.referrer)
+  })
+  stats.alltime.byUrl = o2a(byUrl)
+  stats.alltime.byUserAgent = o2a(byUserAgent)
+  stats.alltime.byReferrer = o2a(byReferrer)
+  const countSort = (a,b) => b.count-a.count
+  stats.alltime.byUrl.sort(countSort)
+  stats.alltime.byUserAgent.sort(countSort)
+  stats.alltime.byReferrer.sort(countSort)
+  console.log('stats is',stats)
+}
 
 function App() {
   const [loggedin, setLoggedin] = useState(auth.isLoggedIn())
   const login = () => auth.login(AUTH_URL)
   const logout = () => auth.logout()
+  const [stats, setStats] = useState({})
   useEffect(()=>{
     const cb = () => setLoggedin(auth.isLoggedIn())
     auth.on(LOGIN,cb)
@@ -19,10 +74,19 @@ function App() {
 
   const loadData = () => {
     auth.fetch(DATA_URL,{method:'GET'})
-        .then(d => d.json())
-        .then(data=>{
-      console.log('got the data',data)
-    })
+        .then(resp=>ndjsonStream(resp.body))
+        .then(stream => {
+          const reader = stream.getReader()
+          const arr = []
+          const read = (res) => {
+            if(res.done) return arr
+            arr.push(res.value)
+            return reader.read().then(read)
+          }
+          return reader.read().then(read)
+        })
+        .then(arr=>process(arr))
+        .then(stats => setStats(stats))
   }
   let button = <button onClick={login}>login</button>
   if(loggedin) button = <button onClick={logout}>log out</button>
