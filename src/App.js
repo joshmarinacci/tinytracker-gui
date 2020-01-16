@@ -13,6 +13,24 @@ const DATA_URL = 'http://localhost:3965/data.jsonline'
 
 const auth = new AuthModuleSingleton()
 
+const StatsTable = ({stats,field})=>{
+  if(!stats) return <div>no stats yet</div>
+  if(!stats.alltime) return <div>no urls yet</div>
+  return <table className={'data-table'}>
+    <thead>
+    <tr>
+    <th>{field}</th>
+    <th>count</th>
+    </tr>
+    </thead>
+    <tbody>
+    {stats.alltime[field].map((s,i) => {
+      return <tr key={i}><td>{s.key}</td><td>{s.count}</td></tr>
+    })}
+    </tbody>
+  </table>
+}
+
 /*
 	• External links clicked total
 	• External links clicked, top 10
@@ -59,6 +77,11 @@ function process(arr) {
   stats.alltime.byUserAgent.sort(countSort)
   stats.alltime.byReferrer.sort(countSort)
   console.log('stats is',stats)
+  return stats
+}
+
+const HBox = ({children})=>{
+  return <div>{children}</div>
 }
 
 function App() {
@@ -66,6 +89,7 @@ function App() {
   const login = () => auth.login(AUTH_URL)
   const logout = () => auth.logout()
   const [stats, setStats] = useState({})
+  const [field, setField] = useState("byUrl")
   useEffect(()=>{
     const cb = () => setLoggedin(auth.isLoggedIn())
     auth.on(LOGIN,cb)
@@ -92,8 +116,16 @@ function App() {
   if(loggedin) button = <button onClick={logout}>log out</button>
   return (
     <div>
-      {button}
-      <button onClick={loadData}>data</button>
+      <HBox>
+        {button}
+        <button onClick={loadData}>data</button>
+      </HBox>
+      <HBox>
+        <button onClick={()=>setField('byUrl')}>by url</button>
+        <button onClick={()=>setField('byReferrer')}>by referrer</button>
+        <button onClick={()=>setField('byUserAgent')}>by userAgent</button>
+      </HBox>
+      <StatsTable stats={stats} field={field}/>
     </div>
   );
 }
