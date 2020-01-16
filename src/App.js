@@ -5,11 +5,10 @@ import {AuthModuleSingleton, LOGIN} from './auth.js'
 // import {parse} from "ndjson"
 import ndjsonStream from 'can-ndjson-stream';
 
-// const AUTH_URL = 'https://joshmarinacci-tinytracker.glitch.me/github'
-// const DATA_URL = 'https://joshmarinacci-tinytracker.glitch.me/data.json'
-// const AUTH_URL = 'https://joshmarinacci-tinytracker.glitch.me/github'
-const AUTH_URL = 'http://localhost:3965/github'
-const DATA_URL = 'http://localhost:3965/data.jsonline'
+const AUTH_URL = 'https://joshmarinacci-tinytracker.glitch.me/github'
+const DATA_URL = 'https://joshmarinacci-tinytracker.glitch.me/data.jsonline'
+// const AUTH_URL = 'http://localhost:3965/github'
+// const DATA_URL = 'http://localhost:3965/data.jsonline'
 
 const auth = new AuthModuleSingleton()
 
@@ -64,7 +63,6 @@ function process(arr) {
   const byUserAgent = {}
   const byReferrer = {}
   arr.forEach(event => {
-    console.log('event',event)
     count(byUrl,event.url)
     count(byUserAgent,event.userAgent)
     count(byReferrer,event.referrer)
@@ -90,6 +88,7 @@ function App() {
   const logout = () => auth.logout()
   const [stats, setStats] = useState({})
   const [field, setField] = useState("byUrl")
+  const [loadCount, setLoadCount] = useState(0)
   useEffect(()=>{
     const cb = () => setLoggedin(auth.isLoggedIn())
     auth.on(LOGIN,cb)
@@ -102,9 +101,13 @@ function App() {
         .then(stream => {
           const reader = stream.getReader()
           const arr = []
+          let count = 0
           const read = (res) => {
             if(res.done) return arr
             arr.push(res.value)
+            count++
+            if(count%10 === 0) setLoadCount(count)
+            console.log("adding")
             return reader.read().then(read)
           }
           return reader.read().then(read)
@@ -118,7 +121,8 @@ function App() {
     <div>
       <HBox>
         {button}
-        <button onClick={loadData}>data</button>
+        <button onClick={loadData}>load</button>
+        <label>{loadCount} records</label>
       </HBox>
       <HBox>
         <button onClick={()=>setField('byUrl')}>by url</button>
