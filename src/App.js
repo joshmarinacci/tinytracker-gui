@@ -42,46 +42,56 @@ const HBox = ({children})=>{
   return <div>{children}</div>
 }
 
+const LoginButton = ({loggedIn, setLoggedIn, auth}) => {
+    useEffect(()=>{
+        const cb = () => setLoggedIn(auth.isLoggedIn())
+        auth.on(LOGIN,cb)
+        return ()=>auth.off(LOGIN,cb)
+    })
+    if(loggedIn) {
+        return <button onClick={()=>auth.logout()}>logout</button>
+    } else {
+        return <button onClick={()=>auth.login(AUTH_URL)}>login</button>
+    }
+}
+
+const LoadDataButton = ({setStats})=>{
+    const [loadCount, setLoadCount] = useState(0)
+    const loadData = () => {
+        auth.fetch(DATA_URL,{method:'GET'})
+            .then(resp=>ndjsonStream(resp.body))
+            .then(stream => {
+                const reader = stream.getReader()
+                const arr = []
+                let count = 0
+                const read = (res) => {
+                    if(res.done) return arr
+                    arr.push(res.value)
+                    count++
+                    if(count%10 === 0) setLoadCount(count)
+                    return reader.read().then(read)
+                }
+                return reader.read().then(read)
+            })
+            .then(arr=>process(arr))
+            .then(stats => setStats(stats))
+    }
+    return <HBox>
+        <button onClick={loadData}>load</button>
+        <label>{loadCount} records</label>
+    </HBox>
+}
+
 function App() {
-  const [loggedin, setLoggedin] = useState(auth.isLoggedIn())
-  const login = () => auth.login(AUTH_URL)
-  const logout = () => auth.logout()
+  const [loggedIn, setLoggedIn] = useState(auth.isLoggedIn())
   const [stats, setStats] = useState({})
   const [field, setField] = useState("byUrl")
-  const [loadCount, setLoadCount] = useState(0)
-  useEffect(()=>{
-    const cb = () => setLoggedin(auth.isLoggedIn())
-    auth.on(LOGIN,cb)
-    return ()=>auth.off(LOGIN,cb)
-  })
 
-  const loadData = () => {
-    auth.fetch(DATA_URL,{method:'GET'})
-        .then(resp=>ndjsonStream(resp.body))
-        .then(stream => {
-          const reader = stream.getReader()
-          const arr = []
-          let count = 0
-          const read = (res) => {
-            if(res.done) return arr
-            arr.push(res.value)
-            count++
-            if(count%10 === 0) setLoadCount(count)
-            return reader.read().then(read)
-          }
-          return reader.read().then(read)
-        })
-        .then(arr=>process(arr))
-        .then(stats => setStats(stats))
-  }
-  let button = <button onClick={login}>login</button>
-  if(loggedin) button = <button onClick={logout}>log out</button>
   return (
     <div>
       <HBox>
-        {button}
-        <button onClick={loadData}>load</button>
-        <label>{loadCount} records</label>
+        <LoginButton loggedIn={loggedIn} setLoggedIn={setLoggedIn} auth={auth}/>
+        <LoadDataButton setStats={setStats} />
       </HBox>
       <HBox>
         <button onClick={()=>setField('byUrl')}>by url</button>
