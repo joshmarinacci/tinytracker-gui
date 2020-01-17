@@ -11,22 +11,22 @@ const DATA_URL = 'https://joshmarinacci-tinytracker.glitch.me/data.jsonline'
 
 const auth = new AuthModuleSingleton()
 
-const StatsTable = ({stats,field})=>{
-  if(!stats) return <div>no stats yet</div>
-  if(!stats.alltime) return <div>no urls yet</div>
-  return <table className={'data-table'}>
-    <thead>
-    <tr>
-    <th>{field}</th>
-    <th>count</th>
-    </tr>
-    </thead>
-    <tbody>
-    {stats.alltime[field].map((s,i) => {
-      return <tr key={i}><td>{s.key}</td><td>{s.count}</td></tr>
-    })}
-    </tbody>
-  </table>
+const StatsTable = ({stats,field,range})=>{
+    if(!stats) return <div>no stats yet</div>
+    if(!stats.alltime) return <div>no urls yet</div>
+    return <table className={'data-table'}>
+        <thead>
+        <tr>
+            <th>{field}</th>
+            <th>count</th>
+        </tr>
+        </thead>
+        <tbody>
+        {stats[range][field].map((s,i) => {
+            return <tr key={i}><td>{s.key}</td><td>{s.count}</td></tr>
+        })}
+        </tbody>
+    </table>
 }
 
 console.log("loading")
@@ -37,7 +37,7 @@ console.log("loading")
 	• Panels clicked total
 	• Page loaded total
 
- */
+*/
 
 
 const HBox = ({children})=>{
@@ -71,6 +71,7 @@ const LoadDataButton = ({setStats})=>{
                     arr.push(res.value)
                     count++
                     if(count%10 === 0) setLoadCount(count)
+                    // if(count > 1000) return arr
                     return reader.read().then(read)
                 }
                 return reader.read().then(read)
@@ -85,9 +86,10 @@ const LoadDataButton = ({setStats})=>{
 }
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(auth.isLoggedIn())
-  const [stats, setStats] = useState({})
-  const [field, setField] = useState("byUrl")
+    const [loggedIn, setLoggedIn] = useState(auth.isLoggedIn())
+    const [stats, setStats] = useState({})
+    const [field, setField] = useState("byUrl")
+    const [range, setRange] = useState('alltime')
 
   return (
     <div>
@@ -95,16 +97,22 @@ function App() {
         <LoginButton loggedIn={loggedIn} setLoggedIn={setLoggedIn} auth={auth}/>
         <LoadDataButton setStats={setStats} />
       </HBox>
+        <HBox>
+            <button onClick={()=>setRange('alltime')}>all time</button>
+            <button onClick={()=>setRange('hrs1')}>last hour</button>
+            <button onClick={()=>setRange('hrs24')}>last 24 hrs</button>
+            <button onClick={()=>setRange('days7')}>last 7 days</button>
+        </HBox>
       <HBox>
-        <button onClick={()=>setField('byUrl')}>by url</button>
-        <button onClick={()=>setField('byReferrer')}>by referrer</button>
+          <button onClick={()=>setField('byUrl')}>by url</button>
+          <button onClick={()=>setField('byReferrer')}>by referrer</button>
           <button onClick={()=>setField('byUserAgent')}>by userAgent</button>
           <button onClick={()=>setField('byRegion')}>by region</button>
           <button onClick={()=>setField('byLanguage')}>by language</button>
           <button onClick={()=>setField('byType')}>by type</button>
           <button onClick={()=>setField('byCharset')}>by charset</button>
       </HBox>
-      <StatsTable stats={stats} field={field}/>
+      <StatsTable stats={stats} field={field} range={range}/>
     </div>
   );
 }
