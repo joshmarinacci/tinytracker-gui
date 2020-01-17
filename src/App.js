@@ -85,6 +85,12 @@ const LoadDataButton = ({setStats})=>{
     </HBox>
 }
 
+const ToggleButton = ({onClick,children,value,selected}) => {
+    return <button style={{
+        backgroundColor:(value===selected)?'aqua':'#ccc',
+        border:'1px solid #333',
+    }} onClick={onClick}>{children}</button>
+}
 function App() {
     const [loggedIn, setLoggedIn] = useState(auth.isLoggedIn())
     const [stats, setStats] = useState({})
@@ -98,19 +104,19 @@ function App() {
         <LoadDataButton setStats={setStats} />
       </HBox>
         <HBox>
-            <button onClick={()=>setRange('alltime')}>all time</button>
-            <button onClick={()=>setRange('hrs1')}>last hour</button>
-            <button onClick={()=>setRange('hrs24')}>last 24 hrs</button>
-            <button onClick={()=>setRange('days7')}>last 7 days</button>
+            <ToggleButton onClick={()=>setRange('alltime')} value={'alltime'} selected={range}>all time</ToggleButton>
+            <ToggleButton onClick={()=>setRange('hrs1')} value={'hrs1'} selected={range}>last hour</ToggleButton>
+            <ToggleButton onClick={()=>setRange('hrs24')} value={'hrs24'} selected={range}>last 24 hrs</ToggleButton>
+            <ToggleButton onClick={()=>setRange('days7')} value={'days7'} selected={range}>last 7 days</ToggleButton>
         </HBox>
       <HBox>
-          <button onClick={()=>setField('byUrl')}>by url</button>
-          <button onClick={()=>setField('byReferrer')}>by referrer</button>
-          <button onClick={()=>setField('byUserAgent')}>by userAgent</button>
-          <button onClick={()=>setField('byRegion')}>by region</button>
-          <button onClick={()=>setField('byLanguage')}>by language</button>
-          <button onClick={()=>setField('byType')}>by type</button>
-          <button onClick={()=>setField('byCharset')}>by charset</button>
+          <ToggleButton onClick={()=>setField('byUrl')} value={'byUrl'} selected={field}>by url</ToggleButton>
+          <ToggleButton onClick={()=>setField('byReferrer')} value={'byReferrer'} selected={field}>by referrer</ToggleButton>
+          <ToggleButton onClick={()=>setField('byUserAgent')} value={'byUserAgent'} selected={field}>by userAgent</ToggleButton>
+          <ToggleButton onClick={()=>setField('byRegion')} value={'byRegion'} selected={field}>by region</ToggleButton>
+          <ToggleButton onClick={()=>setField('byLanguage')} value={'byLanguage'} selected={field}>by language</ToggleButton>
+          <ToggleButton onClick={()=>setField('byType')} value={'byType'} selected={field}>by type</ToggleButton>
+          <ToggleButton onClick={()=>setField('byCharset')} value={'byCharsetl'} selected={field}>by charset</ToggleButton>
       </HBox>
       <StatsTable stats={stats} field={field} range={range}/>
     </div>
