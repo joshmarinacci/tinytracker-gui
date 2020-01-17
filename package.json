@@ -11,7 +11,7 @@
     "react-dom": "^16.12.0",
     "react-scripts": "3.2.0"
   },
-  "scripts":{
+  "scripts": {
     "start": "if-env NODE_ENV=production && npm run prod:start || npm run dev:start",
     "dev:start": "react-scripts start",
     "prod:start": "static build --gzip",
