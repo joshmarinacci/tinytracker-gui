@@ -19,15 +19,21 @@ function processByField(arr, key) {
     })
     const stats = o2a(hash)
     stats.sort((a,b)=>b.count-a.count)
+    console.log("stats for ",key,stats)
     return stats
 }
 
 export function process(arr) {
+    console.log("processing",arr)
     return {
         alltime: {
+            byType:processByField(arr,'type'),
             byUrl:processByField(arr,'url'),
             byUserAgent:processByField(arr,'userAgent'),
             byReferrer:processByField(arr,'referrer'),
+            byRegion:processByField(arr,'region'),
+            byLanguage:processByField(arr,'lang'),
+            byCharset:processByField(arr,'charset'),
         }
     }
 }

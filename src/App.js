@@ -98,7 +98,11 @@ function App() {
       <HBox>
         <button onClick={()=>setField('byUrl')}>by url</button>
         <button onClick={()=>setField('byReferrer')}>by referrer</button>
-        <button onClick={()=>setField('byUserAgent')}>by userAgent</button>
+          <button onClick={()=>setField('byUserAgent')}>by userAgent</button>
+          <button onClick={()=>setField('byRegion')}>by region</button>
+          <button onClick={()=>setField('byLanguage')}>by language</button>
+          <button onClick={()=>setField('byType')}>by type</button>
+          <button onClick={()=>setField('byCharset')}>by charset</button>
       </HBox>
       <StatsTable stats={stats} field={field}/>
     </div>
