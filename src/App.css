@@ -1,11 +1,27 @@
 .data-table {
     border-collapse: collapse;
     border: 1px solid black;
+    margin:0;
+    position: relative;
 }
-.data-table thead {
-    background-color: #ccc;
+thead, tbody, tr {
+    margin:0;
+    padding:0;
+
 }
 .data-table td, .data-table th {
     padding: 0.25em 0.5em;
     border: 1px solid black;
+    /*border: 2px solid red;*/
+    margin:0;
+}
+
+.data-table th {
+    background-color: #ccc;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0px;
+    border: 1px solid black;
+    margin:0;
+    /*border-width: 0 1px 0 0;*/
 }
