@@ -25,3 +25,13 @@ thead, tbody, tr {
     margin:0;
     /*border-width: 0 1px 0 0;*/
 }
+canvas {
+    border: 1px solid red;
+}
+
+
+#chart {
+    border: 1px solid black;
+    width: 800px;
+    height: 300px;
+}
