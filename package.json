@@ -12,11 +12,12 @@
     "react-scripts": "3.2.0"
   },
   "scripts": {
-    "start": "if-env NODE_ENV=production && npm run prod:start || npm run dev:start",
-    "dev:start": "react-scripts start",
-    "prod:start": "static build --gzip",
-    "build": "react-scripts build && gzip -rk build && refresh"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
   },
+  "engines": { "node": "10.x" },
   "eslintConfig": {
     "extends": "react-app"
   },
