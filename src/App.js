@@ -88,6 +88,7 @@ function App() {
     const [stats, setStats] = useState({})
     const [field, setField] = useState("type")
     // const [range, setRange] = useState('alltime')
+    const [filter, setFilter] = useState("all-regions")
 
   return (
     <div>
@@ -95,7 +96,10 @@ function App() {
         <LoginButton loggedIn={loggedIn} setLoggedIn={setLoggedIn} auth={auth}/>
         <LoadDataButton setStats={setStats} />
       </HBox>
-        <ChartC3 stats={stats}/>
+        <HBox>
+            <button onClick={()=> setFilter("top5-regions")}>top five regions</button>
+        </HBox>
+        <ChartC3 stats={stats} filter={filter}/>
         {/*<HBox>*/}
             {/*<ToggleButton onClick={()=>setRange('alltime')} value={'alltime'} selected={range}>all time</ToggleButton>*/}
             {/*<ToggleButton onClick={()=>setRange('hrs1')} value={'hrs1'} selected={range}>last hour</ToggleButton>*/}

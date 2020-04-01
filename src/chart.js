@@ -23,31 +23,17 @@ function flatten(stats) {
     return arr
 }
 
-export const ChartC3 = ({stats}) => {
+export const ChartC3 = ({stats, filter}) => {
     let chart = useRef();
     useEffect(()=> {
         if (chart.current) {
             console.log(Object.keys(stats).length)
             if(Object.keys(stats).length > 0) {
                 let flat_days = flatten(stats);
-                // let days = Object.keys(stats['2020']['2'])
                 let days_list = ['date']
                 let totals = ['totals']
-                flat_days.forEach((dp,i)=>{
-                    console.log('day is',dp)
-                    let data = dp.data
-                    days_list.push(`${dp.year}-${dp.month}-${dp.day}`)
-                    totals.push(sum_pairs(to_pairs(data.lang)))
-                })
-                let chart = c3.generate({
+                let config = {
                     bindto:'#chart',
-                    data: {
-                        x:'date',
-                        columns: [
-                            days_list,
-                            totals,
-                        ]
-                    },
                     axis: {
                         y: {
                             label: "hits per day",
@@ -62,9 +48,49 @@ export const ChartC3 = ({stats}) => {
                         },
 
                     }
-                })
+                }
+                if(filter === 'all-regions') {
+                    flat_days.forEach((dp, i) => {
+                        let data = dp.data
+                        days_list.push(`${dp.year}-${dp.month}-${dp.day}`)
+                        totals.push(sum_pairs(to_pairs(data.lang)))
+                    })
+                    config.data = {
+                        x:'date',
+                        columns: [
+                            days_list,
+                            totals,
+                        ]
+                    }
+                }
+                const range = (s,e) => {
+                    let arr = []
+                    for(let i=s; i<e; i++) {
+                        arr[i] = i;
+                    }
+                    return arr;
+                }
+                if(filter === 'top5-regions') {
+                    let count = 10
+                    let ran = range(0,count);
+                    let tops = ran.map(()=>[])
+                    flat_days.forEach((dp,i) => {
+                        days_list.push(`${dp.year}-${dp.month}-${dp.day}`)
+                        let data = to_pairs(dp.data.lang)
+                        data.sort((a,b)=> b.value - a.value)
+                        //copy the keys to the first element of the array to use as display names
+                        if(data.length < count) return;
+                        if(i === 0) ran.forEach(i=>tops[i].push(data[i].key))
+                        ran.forEach(i=>tops[i].push(data[i].value))
+                    })
+                    config.data = {
+                        x:'date',
+                        columns: [ days_list, ...tops ]
+                    }
+                }
+                c3.generate(config);
             }
         }
-    })
+    },[stats,filter])
     return <div id="chart" ref={chart}/>
 }
