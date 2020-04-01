@@ -60,14 +60,18 @@ const LoginButton = ({loggedIn, setLoggedIn, auth}) => {
     }
 }
 
-const LoadDataButton = ({setStats})=>{
+const LoadDataButton = ({setStats, onError})=>{
     const [loadCount, setLoadCount] = useState(0)
     const loadData = () => {
         auth.fetch(DATA_URL,{method:'GET'})
             .then(res => res.json())
             .then(stats => {
                 console.log("got the stats",stats)
-                setStats(stats)
+                if(stats.success === false && stats.message) {
+                    onError(stats.message)
+                }else {
+                    setStats(stats)
+                }
             })
     }
     return <HBox>
@@ -89,14 +93,17 @@ function App() {
     const [field, setField] = useState("type")
     // const [range, setRange] = useState('alltime')
     const [filter, setFilter] = useState("all-regions")
+    const [error, setError] = useState(null)
 
   return (
     <div>
       <HBox>
         <LoginButton loggedIn={loggedIn} setLoggedIn={setLoggedIn} auth={auth}/>
-        <LoadDataButton setStats={setStats} />
+        <LoadDataButton setStats={setStats} onError={setError}/>
+        <ErrorMessage error={error}/>
       </HBox>
         <HBox>
+            <button onClick={()=> setFilter("all-regions")}>all regions</button>
             <button onClick={()=> setFilter("top5-regions")}>top five regions</button>
         </HBox>
         <ChartC3 stats={stats} filter={filter}/>
@@ -123,3 +130,8 @@ function App() {
 }
 
 export default App;
+
+const ErrorMessage = ({error}) => {
+    if(!error) return <div></div>
+    return <div>{error.toString()}</div>
+}
