@@ -104,7 +104,8 @@ function App() {
       </HBox>
         <HBox>
             <button onClick={()=> setFilter("all-regions")}>all regions</button>
-            <button onClick={()=> setFilter("top5-regions")}>top five regions</button>
+            <button onClick={()=> setFilter("top5-regions")}>top ten regions</button>
+            <button onClick={()=> setFilter('top10-content')}>top ten content</button>
         </HBox>
         <ChartC3 stats={stats} filter={filter}/>
         {/*<HBox>*/}
